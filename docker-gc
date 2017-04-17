@@ -240,10 +240,12 @@ container_log "Container not running" containers.exited
 # Find exited containers that finished at least GRACE_PERIOD_SECONDS ago
 cat containers.exited | while read line
 do
-    EXITED=$(${DOCKER} inspect -f "{{json .State.FinishedAt}}" ${line})
-	ELAPSED=$(elapsed_time $EXITED)
-	if [[ $ELAPSED -gt $GRACE_PERIOD_SECONDS ]]; then
-		echo $line >> containers.reap.tmp
+    EXITED=$(${DOCKER} inspect -f "{{json .State.FinishedAt}}" ${line} | true)
+	if [[ "$EXITED" != "" ]]; then
+		ELAPSED=$(elapsed_time $EXITED)
+		if [[ $ELAPSED -gt $GRACE_PERIOD_SECONDS ]]; then
+			echo $line >> containers.reap.tmp
+		fi
 	fi
 done
 
