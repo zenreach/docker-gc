@@ -211,7 +211,6 @@ $DOCKER ps -a -q --no-trunc | sort | uniq > containers.all
 
 # List running containers
 $DOCKER ps -q --no-trunc | sort | uniq > containers.running
-container_log "Container running" containers.running
 
 # List dead containers
 $DOCKER ps -q -a -f status=dead | sort | uniq > containers.dead    
@@ -231,11 +230,7 @@ rm containers.exited.tmp
 > containers.reap.tmp
 if [[ $EXCLUDE_DEAD -eq 0 ]]; then
 	cat containers.dead >> containers.reap.tmp
-else
-	echo "Excluding dead containers"
 fi
-
-container_log "Container not running" containers.exited
 
 # Find exited containers that finished at least GRACE_PERIOD_SECONDS ago
 cat containers.exited | while read line
@@ -294,7 +289,7 @@ fi
 if [[ $DRY_RUN -gt 0 ]]; then
     container_log "The following container would have been removed" containers.reap
 else
-    container_log "Removing containers" containers.reap
+    container_log "Removing container" containers.reap
     xargs -n 1 $DOCKER rm $FORCE_CONTAINER_FLAG --volumes=true < containers.reap &>/dev/null || true
 fi
 
